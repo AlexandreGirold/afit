@@ -1,28 +1,50 @@
 (** Generating primes *)
 
-open Builtin
-open Basic_arithmetics
+
+#use "test_primes.ml";;
+
 
 (** List composed of 2 and then odd integers starting at 3.
     @param n limit of list of odd integers, minimum value is 2.
  *)
-let init_eratosthenes n = []
+let init_eratosthenes n = let rec aux odd l =
+                            match n mod 2 with
+                            |0-> if (n-1)>=odd then odd::(aux (odd+2) l)
+                                 else l
+                            |_-> if n>=odd then  odd::(aux (odd+2) l)
+                                 else l
+                          in 2::(aux 3 []);;
+
+
 
 (** Eratosthene sieve.
     @param n limit of list of primes, starting at 2.
 *)
-let eratosthenes n = []
+let eratosthenes n = let rec aux prime l = match is_prime(prime)with
+                       |true -> if prime<= n then prime::(aux (prime+1) l)
+                                else l
+                       |_-> aux (prime+1) l
+                     in 2::(aux 2 []);;
+
+
 
 (** Write a list into a file. Element seperator is newline.
     @param file path to write to.
  *)
-let write_list li file = ()
+
+let write_list li file =
+    let oc = open_out file in
+    let rec write = function
+        []   -> close_out oc
+       |e::l -> Printf.fprintf oc "%d\n" e; write l
+    in write li;;
+
 
 (** Write a list of prime numbers up to limit into a txt file.
     @param n limit of prime numbers up to which to build up a list of primes.
     @param file path to write to.
 *)
-let write_list_primes n file = ()
+let write_list_primes n file = write_list (eratosthenes (n)) file;;
 
 
 (** Read file safely ; catch End_of_file exception.
@@ -46,7 +68,8 @@ let create_list in_c =
 (** Load list of primes into OCaml environment.
     @param file path to load from.
  *)
-let read_list_primes file = []
+let read_list_primes file = create_list(open_in file);; 
+
 
 (** Get biggest prime.
     @param l list of prime numbers.
@@ -69,7 +92,14 @@ let rec last_two l = match l with
     @param limit positive integer bounding searched for primes.
     @param isprime function testing for (pseudo)primality.
  *)
-let double_primes limit isprime = []
+let double_primes limit isprime = let rec aux (p1,p2) l  = let isprime= is_prime(p1) =
+                                    match (is_prime(p1)=is_prime(p2)) with
+                                    |true -> (p1,p2)::(aux (p1+1)(p2+1)l )
+                                    |_-> aux (p1+1) (p2+1) l 
+                                  in aux limit limit [];;
+
+
+
 
 (** Finding twin primes.
     @param limit positive integer bounding searched for primes.
