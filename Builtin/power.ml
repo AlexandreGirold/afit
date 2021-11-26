@@ -18,7 +18,8 @@ let pow x n = let rec aux x n = match n with
     @param n exponent
  *)
 let rec power x n = if (x=1)||(n=0) then 1
-                    else if n mod 2 = 0 then power x (n/2)*power x (n/2)
+                    else if n mod 2 = 0 then
+                    power x (n/2)*power x (n/2)
                     else power x (n-1)*x;;
 
 
@@ -27,15 +28,20 @@ let rec power x n = if (x=1)||(n=0) then 1
     @param n exponent
     @param m modular base
  *)
-let mod_power x n m = let rec aux x n =
-                        x=x mod n;
-                        if n=0 then 1
-                        else if n =0 then x
-                        else if n mod 2 = 0 then (aux (x*x mod m) n/2)
-                        else x*(aux x (n-1)) mod n
-                      in aux x n;;
 
-mod_power 4 13 497;; (*not working yet*)
+let mod_power x n m =
+  let rec mod_power_rec x n m =
+    let b = if n = 0
+            then 1
+            else let a = mod_power_rec x (n/2) m
+                 in if n mod 2 = 0
+                    then (a*a) mod m
+                    else (((a*a) mod m ) * x) mod m in
+    if x < 0 && n mod 2 = 1
+    then b + m
+    else b
+  in mod_power_rec x n m;;
+
 
 (** Fast modular exponentiation function mod prime. Logarithmic complexity.
     It makes use of the Little Fermat Theorem.
@@ -43,4 +49,11 @@ mod_power 4 13 497;; (*not working yet*)
     @param n exponent
     @param p prime modular base
  *)
-let prime_mod_power x n p = 0
+
+ let prime_mod_power x n p = 5;;
+   if n<p then mod_pow x n p
+   else
+     let r= n mod p
+                    
+                    
+ 
