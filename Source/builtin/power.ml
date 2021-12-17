@@ -1,0 +1,79 @@
+(** Power function implementations for builtin integers *)
+
+(*#use "builtin.ml";;*)
+
+open Builtin
+
+(** Naive power function. Linear complexity
+    @param x base
+    @param n exponent
+ *)
+let pow x n = let rec aux x n = match n with
+                |0->1
+                |n-> x*(aux x (n-1) )
+              in aux x n;;
+
+(** Fast integer exponentiation function. Logarithmic complexity.
+    @param x base
+    @param n exponent
+ *)
+let rec power x n = if (x=1)||(n=0) then 1
+                    else if n mod 2 = 0 then
+                    power x (n/2)*power x (n/2)
+                    else power x (n-1)*x;;
+
+
+(** Fast modular exponentiation function. Logarithmic complexity.
+    @param x base
+    @param n exponent
+    @param m modular base
+ *)
+
+let mod_power x n m =
+  let rec aux n =
+    let b = match n with
+      |0->1
+      |_-> let a =aux (n/2)
+                 in if n mod 2 = 0
+                    then (a*a) mod m
+                    else (((a*a) mod m ) * x) mod m in
+    if x < 0 && n mod 2 = 1
+    then b + m
+    else b
+  in aux n;;
+
+
+(** Fast modular exponentiation function mod prime. Logarithmic complexity.
+    It makes use of the Little Fermat Theorem.
+    @param x base
+    @param n exponent
+    @param p prime modular base
+ *)
+
+(*let prime_mod_power x n p =
+  let rec aux nb = match nb with
+    |0->1
+    |1->x
+    |_-> let d,r = div n 2
+         in let y = modulo (aux d) p
+            in let y = modulo (y*y) p
+               in
+                 if r = 0 then y
+                 else
+                   modulo (x*y) p
+  in modulo (aux n) p;;
+ *)
+
+let prime_mod_power x n p = match x with
+  |0->0
+  |_-> match x>0 && n>=p with
+      |true -> let r= modulo n (p-1) in
+               if r= 0 then 1
+               else modulo (power x r) p
+      |_-> if x<0 && n<p
+           then
+             modulo (power (-x) ((p-1)-n)) p
+           else
+             mod_power x n p;;
+
+ prime_mod_power (-1) 12 7;;
